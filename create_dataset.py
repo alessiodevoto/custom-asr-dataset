@@ -2,7 +2,11 @@ from pydub import AudioSegment
 import pandas as pd
 import json
 import os
+from os.path import basename
+import os.path as osp
 import sys
+from pathlib import Path
+
 
 """
 Given an audio file and syncamp.json file generate via aeneas, split the audio into smaller audio files
@@ -14,13 +18,23 @@ python3 create_dataset.py --audio_file <path_to_audio.mp3> --syncmap <path_to_sy
 
 """
 
-def main(in_file, syncmap, out_file):
-    if not os.path.isdir('./samples/'):
-        os.makedirs('./samples/')
-        print("Created folder : ", './samples/')
-    else:
-        print('./samples/', "Folder already exists. Exiting.")
-        sys.exit()
+
+
+def main(in_file, syncmap, out_dir):
+    dataset_name = basename(in_file).split('.')[0]
+    
+    samples_dir = 'samples_' + dataset_name
+    samples_dir_path = osp.join(out_dir, samples_dir)
+    generic_sample_path = osp.join(samples_dir_path, dataset_name+'_sample')
+    generic_sample_relative_path = osp.join('./', samples_dir, dataset_name+'_sample')
+
+    print(samples_dir)
+    print(samples_dir_path)
+    print(generic_sample_path)
+    print(generic_sample_relative_path)
+
+
+    Path(samples_dir_path).mkdir(parents=True, exist_ok=True)
 
     full_track = AudioSegment.from_mp3(in_file)
     with open(syncmap) as f: 
@@ -37,22 +51,23 @@ def main(in_file, syncmap, out_file):
     # export audio segment
     for idx, sentence in enumerate(sentences):
         text = sentence['text'].lower()
-        sentence['audio'].export('./samples/sample-'+str(idx)+'.mp3', format='mp3')
+        sentence['audio'].export(generic_sample_path+'-'+str(idx)+'.mp3', format='mp3')
         duration = sentence['duration']
-        temp_df = pd.DataFrame([{'filename':'./samples/sample-'+str(idx)+'.mp3','text':text,'up_votes':0,'down_votes':0,'age':0,'gender':'male','accent':'','duration':duration}], columns=['filename','text','up_votes','down_votes','age','gender','accent','duration'])
+        temp_df = pd.DataFrame([{'filename':generic_sample_relative_path+'-'+str(idx)+'.mp3','text':text,'up_votes':0,'down_votes':0,'age':0,'gender':'male','accent':'','duration':duration}], columns=['filename','text','up_votes','down_votes','age','gender','accent','duration'])
         df = df.append(temp_df)
 
-    df.to_csv(out_file,index=False)
-
+    df.to_csv(osp.join(out_dir,dataset_name+'.csv'),index=False)
+    
+ 
 import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--audio_file", type=str)
 parser.add_argument("--syncmap", type=str)
-parser.add_argument("--out_file", type=str)
+parser.add_argument("--out_dir", type=str)
 args = parser.parse_args()
 print(args)
-main(args.audio_file, args.syncmap, args.out_file)
+main(args.audio_file, args.syncmap, args.out_dir)
 
 
 

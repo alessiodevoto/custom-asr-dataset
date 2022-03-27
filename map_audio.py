@@ -1,5 +1,6 @@
 from aeneas.executetask import ExecuteTask
 from aeneas.task import Task
+import sys
 
 """
 Use aeneas to create a mapping between audio file and its transcription.
@@ -14,6 +15,10 @@ python3 map_audio.py --audio_file <path_to_audio_file.mp3> --text_file <path_to_
 """
 
 def main(audio_file, text_file, out_file):
+	if not out_file.endswith('json'):
+		print('Ouput file must be json')
+		sys.exit()
+
 	# create Task object
 	config_string = "task_language=it|is_text_type=plain|os_task_file_format=json"
 	task = Task(config_string=config_string)
@@ -31,7 +36,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("--audio_file", type=str)
 parser.add_argument("--text_file", type=str)
-parser.add_argument("--out_file", nargs='?', default="syncmap.json", type=str)
+parser.add_argument("--out_file", type=str)
 args = parser.parse_args()
 print(args)
 

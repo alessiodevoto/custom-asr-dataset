@@ -76,6 +76,8 @@ def do_normalize(in_file, sentence_min_len, remove_lines):
     new_lines = []
     if remove_lines is not None:
         remove_lines = remove_lines.lower().split(';')
+    else:
+        remove_lines = []
 
     for line in lines:
         if line.lower() not in remove_lines: 
@@ -83,7 +85,7 @@ def do_normalize(in_file, sentence_min_len, remove_lines):
 
     text = ' '.join(new_lines)
 
-    print(text)
+    # print(text)
 
     new_file = ''
     sentence = ''
