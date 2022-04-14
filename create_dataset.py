@@ -46,14 +46,14 @@ def main(in_file, syncmap, out_dir):
         if duration > 400:
             sentences.append({'audio':full_track[float(fragment['begin'])*1000:float(fragment['end'])*1000], 'text':fragment['lines'][0], 'duration':duration})
 
-    df = pd.DataFrame(columns=['filename','text','up_votes','down_votes','age','gender','accent','duration'])
+    df = pd.DataFrame(columns=['path','sentence','up_votes','down_votes','age', 'client_id', 'gender', 'locale', 'accent','duration', 'segment'])
 
     # export audio segment
     for idx, sentence in enumerate(sentences):
         text = sentence['text'].lower()
         sentence['audio'].export(generic_sample_path+'-'+str(idx)+'.mp3', format='mp3')
         duration = sentence['duration']
-        temp_df = pd.DataFrame([{'filename':generic_sample_relative_path+'-'+str(idx)+'.mp3','text':text,'up_votes':0,'down_votes':0,'age':0,'gender':'male','accent':'','duration':duration}], columns=['filename','text','up_votes','down_votes','age','gender','accent','duration'])
+        temp_df = pd.DataFrame([{'path':generic_sample_relative_path+'-'+str(idx)+'.mp3','path':text, 'client_id':'', 'locale':'', 'segment':0, 'up_votes':0,'down_votes':0,'age':0,'gender':'','accent':'','duration':duration}], columns=['path','sentence','up_votes','down_votes','age', 'client_id', 'gender', 'locale', 'accent','duration', 'segment'])
         df = df.append(temp_df)
 
     df.to_csv(osp.join(out_dir,dataset_name+'.csv'),index=False)
